@@ -47,33 +47,24 @@ wss.on("connection", socket => {
 
 		let message = JSON.parse(packet.toString())
 
-		if(message.type == "mouse"){
+        if (message.type === "mouse") {
+            let { position, buttons } = message;
+            let button = buttons.left_click ? 1 : buttons.right_click ? 2 : 0;
 
-			
-			let {movement, buttons} = message;
+            let x = Math.max(0, Math.min(32767, position.x)); // Absolute X (0-32767)
+            let y = Math.max(0, Math.min(32767, position.y)); // Absolute Y (0-32767)
 
-			console.log(message);
+            const buffer = Buffer.from([
+                button,
+                (x >> 8) & 0xFF, x & 0xFF,
+                (y >> 8) & 0xFF, y & 0xFF,
+                0x00
+            ]);
 
-			let button = 0;
-
-			if(buttons.left_click){
-				button = 1;
-			}
-			if(buttons.right_click){
-				button = 2
-			}
-
-	
-			let scale = 2.8
-
-			const buffer = Buffer.from([ button, movement.dx/scale, movement.dy/scale , 0x00]);
-
-
-			mouse_hid.write(buffer, (err) => {
-				if(err) console.log(err)
-			})
-
-		}
+            mouse_hid.write(buffer, err => {
+                if (err) console.log(err);
+            });
+        }
 
 		if(message.type == "keyboard"){
 
