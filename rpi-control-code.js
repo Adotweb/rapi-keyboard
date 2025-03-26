@@ -34,24 +34,26 @@ wss.on("connection", socket => {
 	
 	socket.on("message", packet => {
 		let message = JSON.parse(packet.toString())
-        if (message.type === "mouse") {
-            let { position, buttons } = message;
-            let button = buttons.left_click ? 1 : buttons.right_click ? 2 : 0;
+	        if (message.type === "mouse") {
+            		let { position, buttons } = message;
+            		let button = buttons.left_click ? 1 : buttons.right_click ? 2 : 0;
 	
-            let xHID = toHIDCoord(position.x);
-            let yHID = toHIDCoord(position.y);
-	console.log(xHID, yHID);
-            const buffer = Buffer.from([
-    			button, 
-    			xHID & 0xFF,         // X Low Byte
-    			(xHID >> 8) & 0xFF,  // X High Byte
-    			yHID & 0xFF,          // Y Low Byte
-    			(yHID >> 8) & 0xFF,  // Y High Byte
-		]);
-            mouse_hid.write(buffer, err => {
-                if (err) console.log(err);
-            });
-        }
+            		let xHID = toHIDCoord(position.x);
+            		let yHID = toHIDCoord(position.y);
+			console.log(xHID, yHID);
+
+            		const buffer = Buffer.from([
+    				button, 
+    				xHID & 0xFF,         // X Low Byte
+    				(xHID >> 8) & 0xFF,  // X High Byte
+    				yHID & 0xFF,          // Y Low Byte
+    				(yHID >> 8) & 0xFF,  // Y High Byte
+			]);
+            		
+			mouse_hid.write(buffer, err => {
+                		if (err) console.log(err);
+            		});
+        	}
 		if(message.type == "keyboard"){
 			let {key, modifier} = message;
 			let keycode = key_map[key.toLowerCase()];
